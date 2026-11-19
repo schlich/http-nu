@@ -116,7 +116,16 @@ cargo install http-nu --locked
 
 ### Nix
 
-```bash
+Run from this repository's flake or build from a local checkout.
+
+```nu
+nix run github:cablehead/http-nu -- --help
+nix build
+```
+
+For the release packaged in nixpkgs, use the following command.
+
+```nu
 nix-shell -p http-nu
 ```
 

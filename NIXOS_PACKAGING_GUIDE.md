@@ -2,6 +2,34 @@
 
 This guide documents how to package and maintain http-nu in nixpkgs.
 
+## Project flake and Cachix
+
+`nix build` builds the checkout using the pinned `flake.lock` on
+x86_64 Linux, aarch64 Linux, and aarch64 macOS. `nix run . -- --help`
+runs the resulting binary. The Nix build checks the installed binary's
+version, and the cross-platform CI test job runs the full test suite.
+
+Create a public Cachix cache with Cachix-managed signing. Configure the
+repository under **Secrets and variables > Actions**.
+
+- Set the `CACHIX_CACHE_NAME` variable to the cache name.
+- Set the `CACHIX_AUTH_TOKEN` secret to a write token for that cache.
+
+Pull requests can read the public cache. Pushes to `main` publish build
+outputs when a write token is configured. The Nix build also runs in
+repositories without the cache variable.
+
+To opt into the same cache locally, set `cache_name` to its configured name.
+
+```nu
+let cache_name = 'your-cache-name'
+cachix use $cache_name
+nix build
+```
+
+For setup details, see the
+[Cachix GitHub Actions guide](https://docs.cachix.org/continuous-integration-setup/github-actions).
+
 > **Note**: http-nu is already packaged in nixpkgs. See the
 > [package definition](https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ht/http-nu/package.nix)
 > for the current implementation.
