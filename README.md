@@ -116,13 +116,32 @@ cargo install http-nu --locked
 
 ### Nix
 
+http-nu is in [nixpkgs](https://search.nixos.org/packages?query=http-nu), but
+the nixpkgs package usually trails the latest release by a few versions:
+
 ```bash
 nix-shell -p http-nu
 ```
 
-http-nu is available in [nixpkgs](https://github.com/NixOS/nixpkgs). For
-packaging and maintenance documentation, see
-[NIXOS_PACKAGING_GUIDE.md](NIXOS_PACKAGING_GUIDE.md).
+For the latest release or `main`, use this repository's flake, which builds the
+current source:
+
+```bash
+nix run github:cablehead/http-nu -- :3001 -c '{|req| "Hello world"}'
+nix profile install github:cablehead/http-nu
+```
+
+From a checkout:
+
+| Command                                       | What it does                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------- |
+| `nix build`                                   | Build http-nu into `./result/bin/http-nu`                           |
+| `nix run . -- <args>`                         | Build and run http-nu                                               |
+| `nix develop`                                 | Enter a Nushell dev shell with the Rust toolchain, deno, and brotli |
+| `nix develop --command bash scripts/check.sh` | Run the full check suite in that environment                        |
+| `nix flake check`                             | Build the package and dev shell, and check Datastar versions        |
+| `nix fmt`                                     | Format the Nix files                                                |
+| `nix flake update`                            | Update the pinned nixpkgs (and other inputs) in `flake.lock`        |
 
 ## Reference
 
@@ -368,6 +387,15 @@ $ http-nu --log-format jsonl :3001 '{|req| "hello"}'
 ```
 
 Lifecycle events: `started`, `reloaded`, `stopping`, `stopped`, `stop_timed_out`
+
+Only these headers are logged, for both requests and responses: `host`,
+`user-agent`, `accept`, `content-type`, `content-length`, `content-encoding`,
+`cache-control`. Query values are logged empty: `/p?token=abc&page=2` is logged
+as `/p?token=&page=`. `--log-headers` sets a different list:
+
+```bash
+$ http-nu --log-format jsonl --log-headers host,user-agent,x-request-id :3001 ./serve.nu
+```
 
 The `print` command outputs to the logging system (appears as `message: "print"`
 in JSONL).
